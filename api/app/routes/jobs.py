@@ -6,6 +6,10 @@ import json
 from api.app.services.queue import enqueue_job
 import shutil
 import os
+from fastapi.responses import FileResponse
+
+
+
 
 router = APIRouter(prefix="/jobs", tags=["Jobs"])
 
@@ -92,3 +96,36 @@ def manual_cleanup():
         "message": "Temporary files and output folders cleaned successfully.",
         "details": deleted_counts
     }
+
+
+
+
+
+
+
+    @router.get("/{job_id}/outputs")
+def get_job_outputs(job_id: str):
+    """Returns the list of generated files for a specific completed job."""
+    output_dir = os.path.join("temp_outputs", job_id)
+    if not os.path.exists(output_dir):
+        return {"jobId": job_id, "files": []}
+        
+    files = []
+    for filename in os.listdir(output_dir):
+        file_path = os.path.join(output_dir, filename)
+        if os.path.isfile(file_path):
+            files.append({
+                "name": filename,
+                "sizeBytes": os.path.getsize(file_path),
+                "downloadUrl": f"/jobs/{job_id}/download/{filename}"
+            })
+            
+    return {"jobId": job_id, "files": files}
+
+@router.get("/{job_id}/download/{filename}")
+def download_output_file(job_id: str, filename: str):
+    """Allows downloading a specific generated split file."""
+    file_path = os.path.join("temp_outputs", job_id, filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found.")
+    return FileResponse(file_path, filename=filename)

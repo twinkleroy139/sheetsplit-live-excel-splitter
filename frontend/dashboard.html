@@ -277,57 +277,65 @@
             }
         }
 
+    
+
+
+
         async function startSplitJob() {
-            goToStep(4);
-            const payload = {
-                fileId: uploadedFileMeta.fileId,
-                filePath: uploadedFileMeta.filePath,
-                fileName: uploadedFileMeta.fileName,
-                mode: document.getElementById("splitMode").value,
-                modeValue: document.getElementById("splitMode").value === "column" ? document.getElementById("modeValue").value : parseInt(document.getElementById("modeValue").value),
-                outputFormat: document.getElementById("outputFormat").value
-            };
+    goToStep(4);
+    const payload = {
+        fileId: uploadedFileMeta.fileId,
+        filePath: uploadedFileMeta.filePath,
+        fileName: uploadedFileMeta.fileName,
+        mode: document.getElementById("splitMode").value,
+        modeValue: document.getElementById("splitMode").value === "column" ? document.getElementById("modeValue").value : parseInt(document.getElementById("modeValue").value),
+        outputFormat: document.getElementById("outputFormat").value
+    };
 
+    try {
+        const res = await createJob(payload);
+        document.getElementById("jobStatusText").innerText = `Job Status: PROCESSING...`;
+        document.getElementById("jobResultDetails").innerHTML = `
+            <p><strong>Job ID:</strong> ${res.jobId}</p>
+            <p style="color: blue; margin-top: 10px;">⏳ Background worker is processing your file slices...</p>
+        `;
+
+        const pollInterval = setInterval(async () => {
             try {
-                const res = await createJob(payload);
-                document.getElementById("jobStatusText").innerText = `Job Status: PROCESSING...`;
-                document.getElementById("jobResultDetails").innerHTML = `
-                    <p><strong>Job ID:</strong> ${res.jobId}</p>
-                    <p style="color: blue; margin-top: 10px;">⏳ Background worker is processing your split job...</p>
-                `;
-
-                // Poll output files
-                const pollInterval = setInterval(async () => {
-                    try {
-                        const statusRes = await fetch(`${JOB_API_URL}/jobs/${res.jobId}/outputs`);
-                        const data = await statusRes.json();
-                        
-                        if (data.files && data.files.length > 0) {
-                            clearInterval(pollInterval);
-                            document.getElementById("jobStatusText").innerText = `Job Status: COMPLETED ✅`;
-                            
-                            let filesHtml = '<div style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;"><h4>Generated Split Files:</h4><ul style="list-style: none; padding: 0; margin-top: 10px;">';
-                            data.files.forEach(file => {
-                                const downloadLink = `${JOB_API_URL}/jobs/${res.jobId}/download/${file.name}`;
-                                filesHtml += `<li style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);">
-                                    <span>📄 <strong>${file.name}</strong> (${(file.sizeBytes / 1024).toFixed(1)} KB)</span>
-                                    <a href="${downloadLink}" class="btn" style="padding: 5px 12px; font-size: 13px;" download>Download ⬇</a>
-                                </li>`;
-                            });
-                            filesHtml += '</ul></div>';
-                            
-                            document.getElementById("jobResultDetails").innerHTML = filesHtml;
-                        }
-                    } catch (pollErr) {
-                        console.error("Polling error", pollErr);
-                    }
-                }, 2000);
-
-            } catch (err) {
-                document.getElementById("jobStatusText").innerText = "Job Failed";
-                document.getElementById("jobResultDetails").innerHTML = `<p style="color: red;">${err.message}</p>`;
+                const statusRes = await fetch(`${JOB_API_URL}/jobs/${res.jobId}/outputs`);
+                const data = await statusRes.json();
+                
+                if (data.files && data.files.length > 0) {
+                    clearInterval(pollInterval);
+                    document.getElementById("jobStatusText").innerText = `Job Status: COMPLETED ✅`;
+                    
+                    let filesHtml = '<div style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;"><h4>Generated Split Files (Ready for Download):</h4><ul style="list-style: none; padding: 0; margin-top: 10px;">';
+                    data.files.forEach(file => {
+                        const downloadLink = `${JOB_API_URL}/jobs/${res.jobId}/download/${file.name}`;
+                        filesHtml += `<li style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);">
+                            <span>📄 <strong>${file.name}</strong> (${(file.sizeBytes / 1024).toFixed(1)} KB)</span>
+                            <a href="${downloadLink}" class="btn" style="padding: 5px 12px; font-size: 13px;" download>Download ⬇</a>
+                        </li>`;
+                    });
+                    filesHtml += '</ul></div>';
+                    
+                    document.getElementById("jobResultDetails").innerHTML = filesHtml;
+                }
+            } catch (pollErr) {
+                console.error("Polling error", pollErr);
             }
-        }
+        }, 2000);
+
+    } catch (err) {
+        document.getElementById("jobStatusText").innerText = "Job Failed";
+        document.getElementById("jobResultDetails").innerHTML = `<p style="color: red;">${err.message}</p>`;
+    }
+}
+
+
+
+
+
 
         async function triggerManualCleanup() {
             if (!confirm("Are you sure you want to delete all temporary upload and output files?")) return;
