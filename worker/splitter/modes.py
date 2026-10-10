@@ -44,7 +44,7 @@ def split_by_pieces(input_path: str, num_pieces: int, output_dir: str, output_fo
     return output_files
 
 def split_by_rows(input_path: str, rows_per_file: int, output_dir: str, output_format: str = 'csv', remove_duplicates: bool = False):
-    """Splits file into files of R rows each with optional deduplication."""
+    """Splits large files into fixed chunks of R rows each (e.g., 50k rows per file)."""
     ext = os.path.splitext(input_path)[1].lower()
     if ext == '.csv':
         df = pd.read_csv(input_path)
@@ -63,7 +63,7 @@ def split_by_rows(input_path: str, rows_per_file: int, output_dir: str, output_f
         end_idx = min(start_idx + rows_per_file, total_rows)
         piece_df = df.iloc[start_idx:end_idx]
         
-        out_filename = f"{base_name}_part{part_num}.{output_format}"
+        out_filename = f"{base_name}_rowpart{part_num}.{output_format}"
         out_path = os.path.join(output_dir, out_filename)
         
         write_piece(piece_df, list(df.columns), out_path, output_format)

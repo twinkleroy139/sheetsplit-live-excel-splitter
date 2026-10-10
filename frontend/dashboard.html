@@ -9,13 +9,13 @@
 <body>
     <div class="container">
         <header>
-    <h1>SplitFlow Dashboard</h1>
-    <div>
-        <a href="#" onclick="triggerManualCleanup()" class="btn btn-secondary" style="margin-right: 10px; background: #fee2e2; color: #dc2626; border-color: #fca5a5;">Clear Temp Files 🗑️</a>
-        <a href="#" onclick="toggleHistoryModal()" class="btn btn-secondary" style="margin-right: 10px;">Job History 📋</a>
-        <a href="index.html" class="btn btn-secondary">Home</a>
-    </div>
-</header>
+            <h1>SplitFlow Dashboard</h1>
+            <div>
+                <a href="#" onclick="triggerManualCleanup()" class="btn btn-secondary" style="margin-right: 10px; background: #fee2e2; color: #dc2626; border-color: #fca5a5;">Clear Temp Files 🗑️</a>
+                <a href="#" onclick="toggleHistoryModal()" class="btn btn-secondary" style="margin-right: 10px;">Job History 📋</a>
+                <a href="index.html" class="btn btn-secondary">Home</a>
+            </div>
+        </header>
 
         <!-- Wizard Step Indicators -->
         <div class="step-indicator">
@@ -80,13 +80,13 @@
             </div>
 
             <div class="form-group">
-    <label for="splitMode">Split Mode</label>
-    <select id="splitMode" class="form-control" onchange="toggleModeInput()">
-        <option value="pieces">Split into N Equal Pieces</option>
-        <option value="rows">Split by Fixed Rows per File</option>
-        <option value="column">Split by Unique Column Value (Smart Split)</option>
-    </select>
-</div>
+                <label for="splitMode">Split Mode</label>
+                <select id="splitMode" class="form-control" onchange="toggleModeInput()">
+                    <option value="pieces">Split into N Equal Pieces</option>
+                    <option value="rows">Split by Fixed Rows per File (e.g., 50k)</option>
+                    <option value="column">Split by Unique Column Value (Smart Split)</option>
+                </select>
+            </div>
 
             <div class="form-group" id="modeValueGroup">
                 <label id="modeValueLabel" for="modeValue">Number of Pieces (N)</label>
@@ -94,19 +94,19 @@
             </div>
 
             <div class="form-group">
-    <label for="outputFormat">Output Format</label>
-    <select id="outputFormat" class="form-control">
-        <option value="csv">CSV (.csv)</option>
-        <option value="xlsx">Excel (.xlsx)</option>
-        <option value="tsv">TSV (.tsv)</option>
-        <option value="json">JSON (.json)</option>
-    </select>
-</div>
+                <label for="outputFormat">Output Format</label>
+                <select id="outputFormat" class="form-control">
+                    <option value="csv">CSV (.csv)</option>
+                    <option value="xlsx">Excel (.xlsx)</option>
+                    <option value="tsv">TSV (.tsv)</option>
+                    <option value="json">JSON (.json)</option>
+                </select>
+            </div>
 
             <div class="form-group">
                 <label for="templateNameInput">Save Current Settings as Template (Optional)</label>
                 <div style="display: flex; gap: 10px;">
-                    <input type="text" id="templateNameInput" class="form-control" placeholder="e.g., Weekly Report Config">
+                    <input type="text" id="templateNameInput" class="form-control" placeholder="e.g., 50k Batch Config">
                     <button class="btn btn-secondary" type="button" onclick="saveCurrentTemplate()">Save</button>
                 </div>
             </div>
@@ -119,7 +119,7 @@
 
         <!-- STEP 4: RESULTS -->
         <div class="card hidden" id="step-4-card">
-            <h2>Split Job Status</h2>
+            <h2>Split Job Status & Downloads</h2>
             <div id="jobStatusBox" style="padding: 20px; background: #f8fafc; border-radius: 8px; margin-top: 15px;">
                 <p id="jobStatusText" style="font-weight: 600; font-size: 16px;">Processing job in background worker...</p>
                 <div id="jobResultDetails" style="margin-top: 15px;"></div>
@@ -207,44 +207,35 @@
             }
         }
 
-       
-        
-
-
         function toggleModeInput() {
-    const mode = document.getElementById("splitMode").value;
-    const group = document.getElementById("modeValueGroup");
-    
-    if (mode === "pieces") {
-        group.innerHTML = `
-            <label id="modeValueLabel" for="modeValue">Number of Pieces (N)</label>
-            <input type="number" id="modeValue" class="form-control" value="4" min="1">
-        `;
-    } else if (mode === "rows") {
-        group.innerHTML = `
-            <label id="modeValueLabel" for="modeValue">Rows per File (R)</label>
-            <input type="number" id="modeValue" class="form-control" value="50000" min="1">
-        `;
-    } else if (mode === "column") {
-        // Populate dropdown with column names from uploaded file preview metadata
-        let optionsHtml = '';
-        if (typeof uploadedFileMeta !== 'undefined' && uploadedFileMeta.columns) {
-            uploadedFileMeta.columns.forEach(col => {
-                optionsHtml += `<option value="${col}">${col}</option>`;
-            });
+            const mode = document.getElementById("splitMode").value;
+            const group = document.getElementById("modeValueGroup");
+            
+            if (mode === "pieces") {
+                group.innerHTML = `
+                    <label id="modeValueLabel" for="modeValue">Number of Pieces (N)</label>
+                    <input type="number" id="modeValue" class="form-control" value="4" min="1">
+                `;
+            } else if (mode === "rows") {
+                group.innerHTML = `
+                    <label id="modeValueLabel" for="modeValue">Rows per File (e.g. 50000)</label>
+                    <input type="number" id="modeValue" class="form-control" value="50000" min="1">
+                `;
+            } else if (mode === "column") {
+                let optionsHtml = '';
+                if (typeof uploadedFileMeta !== 'undefined' && uploadedFileMeta.columns) {
+                    uploadedFileMeta.columns.forEach(col => {
+                        optionsHtml += `<option value="${col}">${col}</option>`;
+                    });
+                }
+                group.innerHTML = `
+                    <label id="modeValueLabel" for="modeValue">Select Column to Split By</label>
+                    <select id="modeValue" class="form-control">
+                        ${optionsHtml}
+                    </select>
+                `;
+            }
         }
-        group.innerHTML = `
-            <label id="modeValueLabel" for="modeValue">Select Column to Split By</label>
-            <select id="modeValue" class="form-control">
-                ${optionsHtml}
-            </select>
-        `;
-    }
-}
-
-
-
-
 
         function saveCurrentTemplate() {
             const name = document.getElementById("templateNameInput").value.trim();
@@ -299,36 +290,59 @@
 
             try {
                 const res = await createJob(payload);
-                document.getElementById("jobStatusText").innerText = `Job Status: ${res.status.toUpperCase()}`;
+                document.getElementById("jobStatusText").innerText = `Job Status: PROCESSING...`;
                 document.getElementById("jobResultDetails").innerHTML = `
                     <p><strong>Job ID:</strong> ${res.jobId}</p>
-                    <p style="color: green; margin-top: 10px;">✓ ${res.message}</p>
-                    <p style="margin-top: 10px; color: var(--text-muted);">Check your terminal running <code>worker/worker.py</code> to see the pieces generated instantly!</p>
+                    <p style="color: blue; margin-top: 10px;">⏳ Background worker is processing your split job...</p>
                 `;
+
+                // Poll output files
+                const pollInterval = setInterval(async () => {
+                    try {
+                        const statusRes = await fetch(`${JOB_API_URL}/jobs/${res.jobId}/outputs`);
+                        const data = await statusRes.json();
+                        
+                        if (data.files && data.files.length > 0) {
+                            clearInterval(pollInterval);
+                            document.getElementById("jobStatusText").innerText = `Job Status: COMPLETED ✅`;
+                            
+                            let filesHtml = '<div style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;"><h4>Generated Split Files:</h4><ul style="list-style: none; padding: 0; margin-top: 10px;">';
+                            data.files.forEach(file => {
+                                const downloadLink = `${JOB_API_URL}/jobs/${res.jobId}/download/${file.name}`;
+                                filesHtml += `<li style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);">
+                                    <span>📄 <strong>${file.name}</strong> (${(file.sizeBytes / 1024).toFixed(1)} KB)</span>
+                                    <a href="${downloadLink}" class="btn" style="padding: 5px 12px; font-size: 13px;" download>Download ⬇</a>
+                                </li>`;
+                            });
+                            filesHtml += '</ul></div>';
+                            
+                            document.getElementById("jobResultDetails").innerHTML = filesHtml;
+                        }
+                    } catch (pollErr) {
+                        console.error("Polling error", pollErr);
+                    }
+                }, 2000);
+
             } catch (err) {
                 document.getElementById("jobStatusText").innerText = "Job Failed";
                 document.getElementById("jobResultDetails").innerHTML = `<p style="color: red;">${err.message}</p>`;
             }
         }
-    
-    
-    
+
         async function triggerManualCleanup() {
-    if (!confirm("Are you sure you want to delete all temporary upload and output files?")) return;
-    try {
-        const response = await fetch(`${JOB_API_URL}/jobs/cleanup`, { method: "DELETE" });
-        const res = await response.json();
-        if (response.ok) {
-            alert(`Cleanup successful!\nRemoved ${res.details.uploads_removed} upload files and ${res.details.outputs_removed} output job folders.`);
-        } else {
-            alert("Cleanup failed: " + res.detail);
+            if (!confirm("Are you sure you want to delete all temporary upload and output files?")) return;
+            try {
+                const response = await fetch(`${JOB_API_URL}/jobs/cleanup`, { method: "DELETE" });
+                const res = await response.json();
+                if (response.ok) {
+                    alert(`Cleanup successful!\nRemoved ${res.details.uploads_removed} upload files and ${res.details.outputs_removed} output job folders.`);
+                } else {
+                    alert("Cleanup failed: " + res.detail);
+                }
+            } catch (err) {
+                alert("Error connecting to server for cleanup: " + err.message);
+            }
         }
-    } catch (err) {
-        alert("Error connecting to server for cleanup: " + err.message);
-    }
-}
-    
-    
     </script>
 </body>
 </html>
