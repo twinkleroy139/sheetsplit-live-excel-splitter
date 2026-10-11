@@ -1,0 +1,1 @@
+SUPPORTED_MODES = ["rows", "size", "sheets"]
