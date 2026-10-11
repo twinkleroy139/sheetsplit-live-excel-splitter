@@ -1,4 +1,4 @@
-const JOB_API_URL = "http://127.0.0.1:8000";
+const JOB_API_URL = "https://sheetsplit-api.onrender.com";
 
 // Template Management using localStorage
 function saveTemplate(templateName, mode, modeValue, outputFormat) {
