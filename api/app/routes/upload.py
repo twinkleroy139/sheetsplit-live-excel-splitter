@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, status
 import os
 import shutil
 import uuid
-from api.app.splitter.reader import read_file_preview
+from app.splitter.reader import read_file_preview
 from api.app.config import PLAN_LIMITS
 
 router = APIRouter(prefix="/upload", tags=["Upload"])
