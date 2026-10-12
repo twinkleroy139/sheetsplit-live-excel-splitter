@@ -153,11 +153,33 @@
         const fileInput = document.getElementById("fileInput");
 
         dropzone.addEventListener("click", () => fileInput.click());
+
+        // Enable full drag-and-drop
+        dropzone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = "var(--primary)";
+        });
+
+        dropzone.addEventListener("dragleave", () => {
+            dropzone.style.borderColor = "var(--border)";
+        });
+
+        dropzone.addEventListener("drop", async (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = "var(--border)";
+            if (e.dataTransfer.files.length > 0) {
+                await handleFileSelected(e.dataTransfer.files[0]);
+            }
+        });
+
         fileInput.addEventListener("change", async (e) => {
             if (e.target.files.length > 0) {
                 await handleFileSelected(e.target.files[0]);
             }
         });
+
+
+        
 
         async function handleFileSelected(file) {
             try {
