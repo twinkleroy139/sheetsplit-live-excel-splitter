@@ -10,10 +10,11 @@
     <div class="container">
         <header>
             <h1>SplitFlow Dashboard</h1>
-            <div>
-                <a href="#" onclick="triggerManualCleanup()" class="btn btn-secondary" style="margin-right: 10px; background: #fee2e2; color: #dc2626; border-color: #fca5a5;">Clear Temp Files 🗑️</a>
-                <a href="#" onclick="toggleHistoryModal()" class="btn btn-secondary" style="margin-right: 10px;">Job History 📋</a>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <a href="#" onclick="triggerManualCleanup()" class="btn btn-secondary" style="background: #fee2e2; color: #dc2626; border-color: #fca5a5;">Clear Temp Files 🗑️</a>
+                <a href="#" onclick="toggleHistoryModal()" class="btn btn-secondary">Job History 📋</a>
                 <a href="/" class="btn btn-secondary">Home</a>
+                <div id="authContainer"></div>
             </div>
         </header>
 
@@ -146,6 +147,19 @@
         </div>
     </div>
 
+
+
+
+
+    <!-- Firebase SDK (Compat version for Vanilla JS) -->
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+
+    
     <script src="js/upload.js"></script>
     <script src="js/jobs.js"></script>
     <script>

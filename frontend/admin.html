@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SplitFlow - Admin Control Cockpit</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Admin Control Panel ⚙️</h1>
+            <div>
+                <a href="/dashboard.html" class="btn btn-secondary">Go to Dashboard</a>
+                <button class="btn btn-secondary" onclick="signOutUser()">Sign Out</button>
+            </div>
+        </header>
+
+        <div id="accessDenied" class="card hidden" style="text-align: center; color: red;">
+            <h2>🚫 Access Denied</h2>
+            <p>You do not have administrative permissions to view this console.</p>
+        </div>
+
+        <div id="adminContent" class="card hidden">
+            <h2>System Overview</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                <div style="padding: 15px; background: #eff6ff; border-radius: 8px;">
+                    <div style="font-size: 13px; color: #1e40af;">Total Splitting Jobs</div>
+                    <div id="metricTotalJobs" style="font-size: 24px; font-weight: bold; color: #1e3a8a;">0</div>
+                </div>
+                <div style="padding: 15px; background: #ecfdf5; border-radius: 8px;">
+                    <div style="font-size: 13px; color: #065f46;">Completed Jobs</div>
+                    <div id="metricCompleted" style="font-size: 24px; font-weight: bold; color: #064e3b;">0</div>
+                </div>
+                <div style="padding: 15px; background: #fef2f2; border-radius: 8px;">
+                    <div style="font-size: 13px; color: #991b1b;">Failed Jobs</div>
+                    <div id="metricFailed" style="font-size: 24px; font-weight: bold; color: #7f1d1d;">0</div>
+                </div>
+                <div style="padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border);">
+                    <div style="font-size: 13px; color: var(--text-muted);">Disk Storage Used</div>
+                    <div id="metricDisk" style="font-size: 24px; font-weight: bold;">0 MB</div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn" onclick="loadAdminMetrics()">Refresh Metrics</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        auth.onAuthStateChanged(async (user) => {
+            if (!user || user.email !== ADMIN_EMAIL) {
+                document.getElementById("accessDenied").classList.remove("hidden");
+                document.getElementById("adminContent").classList.add("hidden");
+            } else {
+                document.getElementById("accessDenied").classList.add("hidden");
+                document.getElementById("adminContent").classList.remove("hidden");
+                loadAdminMetrics();
+            }
+        });
+
+        async function loadAdminMetrics() {
+            try {
+                const token = await auth.currentUser.getIdToken();
+                const res = await fetch("/admin/metrics", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error("Forbidden");
+                const data = await res.json();
+                
+                document.getElementById("metricTotalJobs").innerText = data.totalJobs;
+                document.getElementById("metricCompleted").innerText = data.completedJobs;
+                document.getElementById("metricFailed").innerText = data.failedJobs;
+                document.getElementById("metricDisk").innerText = `${(data.uploadStorageMb + data.outputStorageMb).toFixed(1)} MB`;
+            } catch (err) {
+                console.error("Failed to load metrics", err);
+            }
+        }
+    </script>
+</body>
+</html>

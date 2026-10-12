@@ -6,3 +6,10 @@ temp_outputs/
 temp_queue.json
 .env
 .DS_Store
+
+# Firebase Admin credentials
+api/app/firebase_service_account.json
+firebase_service_account.json
+*.json
+!package.json
+!tsconfig.json
