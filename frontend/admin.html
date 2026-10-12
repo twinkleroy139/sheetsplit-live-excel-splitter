@@ -9,79 +9,142 @@
 <body>
     <div class="container">
         <header>
-            <h1>Admin Control Panel ⚙️</h1>
-            <div>
-                <a href="/dashboard.html" class="btn btn-secondary">Go to Dashboard</a>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <h1>SplitFlow ⚡</h1>
+                <span class="badge" style="background:#fee2e2; color:#dc2626;">Master Admin</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleNightMode()">🌙 Dark</button>
+                <a href="/dashboard.html" class="btn btn-secondary">Split Dashboard</a>
+                <a href="/" class="btn btn-secondary">Home</a>
                 <button class="btn btn-secondary" onclick="signOutUser()">Sign Out</button>
             </div>
         </header>
 
-        <div id="accessDenied" class="card hidden" style="text-align: center; color: red;">
-            <h2>🚫 Access Denied</h2>
-            <p>You do not have administrative permissions to view this console.</p>
+        <!-- Access Denied State -->
+        <div id="accessDenied" class="card hidden" style="text-align: center; padding: 50px 20px;">
+            <h2 style="color: #dc2626; margin-bottom: 10px;">🚫 Access Restricted</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">This administrative cockpit is reserved exclusively for the system owner.</p>
+            <a href="/dashboard.html" class="btn">Return to Dashboard</a>
         </div>
 
-        <div id="adminContent" class="card hidden">
-            <h2>System Overview</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
-                <div style="padding: 15px; background: #eff6ff; border-radius: 8px;">
-                    <div style="font-size: 13px; color: #1e40af;">Total Splitting Jobs</div>
-                    <div id="metricTotalJobs" style="font-size: 24px; font-weight: bold; color: #1e3a8a;">0</div>
+        <!-- Admin Cockpit Main -->
+        <div id="adminContent" class="hidden">
+            <!-- Metric Cards -->
+            <div class="grid-3" style="margin-bottom: 25px;">
+                <div class="card" style="padding: 20px; margin-bottom: 0;">
+                    <div style="font-size: 13px; color: var(--text-muted); font-weight: 600;">Total Splitting Jobs</div>
+                    <div id="kpiTotalJobs" style="font-size: 28px; font-weight: 800; color: var(--primary); margin-top: 5px;">0</div>
                 </div>
-                <div style="padding: 15px; background: #ecfdf5; border-radius: 8px;">
-                    <div style="font-size: 13px; color: #065f46;">Completed Jobs</div>
-                    <div id="metricCompleted" style="font-size: 24px; font-weight: bold; color: #064e3b;">0</div>
+                <div class="card" style="padding: 20px; margin-bottom: 0;">
+                    <div style="font-size: 13px; color: var(--text-muted); font-weight: 600;">Completed vs Failed</div>
+                    <div style="font-size: 28px; font-weight: 800; margin-top: 5px;">
+                        <span id="kpiCompleted" style="color: #16a34a;">0</span> / <span id="kpiFailed" style="color: #dc2626;">0</span>
+                    </div>
                 </div>
-                <div style="padding: 15px; background: #fef2f2; border-radius: 8px;">
-                    <div style="font-size: 13px; color: #991b1b;">Failed Jobs</div>
-                    <div id="metricFailed" style="font-size: 24px; font-weight: bold; color: #7f1d1d;">0</div>
-                </div>
-                <div style="padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border);">
-                    <div style="font-size: 13px; color: var(--text-muted);">Disk Storage Used</div>
-                    <div id="metricDisk" style="font-size: 24px; font-weight: bold;">0 MB</div>
+                <div class="card" style="padding: 20px; margin-bottom: 0;">
+                    <div style="font-size: 13px; color: var(--text-muted); font-weight: 600;">Temp Disk Usage</div>
+                    <div id="kpiDiskStorage" style="font-size: 28px; font-weight: 800; margin-top: 5px;">0 MB</div>
                 </div>
             </div>
 
-            <div class="actions">
-                <button class="btn" onclick="loadAdminMetrics()">Refresh Metrics</button>
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchAdminTab('users')">🔥 Registered Users</button>
+                <button class="tab-btn" onclick="switchAdminTab('jobs')">🔥 Jobs & Error Logs</button>
+                <button class="tab-btn" onclick="switchAdminTab('announcement')">⚡ Broadcast & Cleanup</button>
+            </div>
+
+            <!-- TAB 1: USERS -->
+            <div id="tab-users" class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3>Users List & Plan Quotas</h3>
+                    <button class="btn btn-secondary" onclick="loadUsersList()">Refresh Users</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Avatar</th>
+                                <th>Email</th>
+                                <th>Name</th>
+                                <th>Plan</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="6" style="text-align:center;">Loading user records from Firestore...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 2: JOBS -->
+            <div id="tab-jobs" class="card hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3>All Splitting Jobs & Error Reasons</h3>
+                    <button class="btn btn-secondary" onclick="loadJobsTable()">Refresh Jobs</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Job ID</th>
+                                <th>File Name</th>
+                                <th>Mode</th>
+                                <th>Format</th>
+                                <th>Status</th>
+                                <th>Error Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jobsTableBody">
+                            <tr><td colspan="6" style="text-align:center;">Loading jobs...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: ANNOUNCEMENT & CLEANUP -->
+            <div id="tab-announcement" class="card hidden">
+                <h3>Global Announcement Banner</h3>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">Broadcast a real-time banner across the entire website.</p>
+
+                <div class="form-group">
+                    <label>Banner Text</label>
+                    <input type="text" id="announcementText" class="form-control" placeholder="e.g. ⚡ System maintenance tonight at 11 PM UTC">
+                </div>
+                <div class="form-group">
+                    <label>Banner Type</label>
+                    <select id="announcementType" class="form-control">
+                        <option value="info">Info (Blue)</option>
+                        <option value="warning">Warning (Orange)</option>
+                        <option value="discount">Promo / Discount (Green)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="announcementActive"> Enable Live Banner
+                    </label>
+                </div>
+                <button class="btn" onclick="saveAnnouncement()">Publish Banner</button>
+
+                <hr style="margin: 30px 0; border: none; border-top: 1px solid var(--border);">
+
+                <h3>Emergency Server Storage Purge</h3>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">Instantly delete all files in <code>temp_uploads</code> and <code>temp_outputs</code> on Render.</p>
+                <button class="btn btn-danger" onclick="triggerAdminStoragePurge()">Force Purge All Temp Storage 🗑️</button>
             </div>
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+
     <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
-    <script>
-        auth.onAuthStateChanged(async (user) => {
-            if (!user || user.email !== ADMIN_EMAIL) {
-                document.getElementById("accessDenied").classList.remove("hidden");
-                document.getElementById("adminContent").classList.add("hidden");
-            } else {
-                document.getElementById("accessDenied").classList.add("hidden");
-                document.getElementById("adminContent").classList.remove("hidden");
-                loadAdminMetrics();
-            }
-        });
-
-        async function loadAdminMetrics() {
-            try {
-                const token = await auth.currentUser.getIdToken();
-                const res = await fetch("/admin/metrics", {
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-                if (!res.ok) throw new Error("Forbidden");
-                const data = await res.json();
-                
-                document.getElementById("metricTotalJobs").innerText = data.totalJobs;
-                document.getElementById("metricCompleted").innerText = data.completedJobs;
-                document.getElementById("metricFailed").innerText = data.failedJobs;
-                document.getElementById("metricDisk").innerText = `${(data.uploadStorageMb + data.outputStorageMb).toFixed(1)} MB`;
-            } catch (err) {
-                console.error("Failed to load metrics", err);
-            }
-        }
-    </script>
+    <script src="js/admin.js"></script>
 </body>
 </html>
