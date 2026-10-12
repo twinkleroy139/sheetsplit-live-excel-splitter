@@ -31,6 +31,7 @@ if FRONTEND_DIR.exists():
     app.mount("/js", StaticFiles(directory=str(FRONTEND_DIR / "js")), name="js")
 
     @app.get("/", response_class=FileResponse)
+    @app.get("/index.html", response_class=FileResponse)
     def serve_index():
         return FileResponse(FRONTEND_DIR / "index.html")
 
