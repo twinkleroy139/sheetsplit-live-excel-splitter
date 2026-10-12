@@ -1,4 +1,6 @@
-const API_URL = "https://sheetsplit-api.onrender.com";
+const API_URL = window.location.origin.includes("127.0.0.1") || window.location.origin.includes("localhost")
+    ? "https://sheetsplit-api.onrender.com"
+    : "";
 
 let uploadedFileMeta = null;
 
