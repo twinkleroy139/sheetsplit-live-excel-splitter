@@ -3,10 +3,22 @@
   --primary-hover: #4338ca;
   --bg-main: #f8fafc;
   --surface: #ffffff;
+  --surface-alt: #f1f5f9;
   --text-main: #1e293b;
   --text-muted: #64748b;
   --border: #e2e8f0;
   --radius: 12px;
+}
+
+[data-theme="dark"] {
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --bg-main: #0b0f19;
+  --surface: #131b2e;
+  --surface-alt: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: #223049;
 }
 
 * {
@@ -14,6 +26,7 @@
   margin: 0;
   padding: 0;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 body {
@@ -33,12 +46,17 @@ header {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
+  gap: 15px;
+  flex-wrap: wrap;
 }
 
 header h1 {
   font-size: 24px;
   color: var(--primary);
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .card {
@@ -75,18 +93,20 @@ header h1 {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--border);
+  background: var(--surface-alt);
   color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 8px auto;
   font-weight: 700;
+  border: 1px solid var(--border);
 }
 
 .step.active .step-number {
   background: var(--primary);
   color: white;
+  border-color: var(--primary);
 }
 
 /* Dropzone */
@@ -97,12 +117,11 @@ header h1 {
   text-align: center;
   cursor: pointer;
   transition: border-color 0.2s ease;
-  background: #fafafa;
+  background: var(--surface-alt);
 }
 
 .dropzone:hover {
   border-color: var(--primary);
-  background: #f1f5f9;
 }
 
 .dropzone p {
@@ -125,7 +144,7 @@ th, td {
 }
 
 th {
-  background: #f8fafc;
+  background: var(--surface-alt);
   color: var(--text-main);
 }
 
@@ -149,12 +168,24 @@ th {
 }
 
 .btn-secondary {
-  background: #e2e8f0;
+  background: var(--surface-alt);
   color: var(--text-main);
+  border: 1px solid var(--border);
 }
 
 .btn-secondary:hover {
-  background: #cbd5e1;
+  background: var(--border);
+}
+
+.theme-toggle-btn {
+  background: var(--surface-alt);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .form-group {
@@ -171,6 +202,8 @@ th {
   width: 100%;
   padding: 10px 14px;
   border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-main);
   border-radius: 8px;
   font-size: 15px;
 }
@@ -183,4 +216,48 @@ th {
   display: flex;
   justify-content: space-between;
   margin-top: 25px;
+}
+
+/* Landing Page Grid Components */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+.info-card, .feature-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.card-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--primary);
+  color: white;
+  font-weight: 700;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.badge {
+  background: var(--surface-alt);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
 }

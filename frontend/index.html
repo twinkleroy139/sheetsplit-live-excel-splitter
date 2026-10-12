@@ -3,23 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SplitFlow - Fast Real-Time Excel & CSV Splitter</title>
+    <title>SplitFlow - Enterprise-Grade Excel & CSV Splitter</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container">
+        <!-- Navigation Header -->
         <header>
-            <h1>SplitFlow ⚡</h1>
-            <a href="dashboard.html" class="btn">Open Dashboard</a>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <h1>SplitFlow ⚡</h1>
+                <span class="badge">v1.0 Pro</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleNightMode()">🌙 Dark</button>
+                <div id="authContainer"></div>
+                <a href="/dashboard.html" class="btn">Open Dashboard 🚀</a>
+            </div>
         </header>
 
+        <!-- Hero Section -->
         <div class="card" style="text-align: center; padding: 60px 20px;">
-            <h2 style="font-size: 36px; margin-bottom: 15px;">Split Huge Excel & CSV Files Instantly</h2>
-            <p style="color: var(--text-muted); font-size: 18px; max-width: 600px; margin: 0 auto 30px auto;">
-                Have files with 200,000+ rows that slow down Excel or crash your machine? Split them in seconds with live progress and automatic header repetition.
+            <h2 style="font-size: 38px; font-weight: 800; line-height: 1.2; margin-bottom: 15px;">Split Huge Excel & CSV Files Instantly</h2>
+            <p style="color: var(--text-muted); font-size: 17px; max-width: 650px; margin: 0 auto 30px auto;">
+                Have files with 200,000+ rows that freeze Excel or crash your browser memory? Split them into segments in seconds with live preview and automatic header repetition.
             </p>
-            <a href="dashboard.html" class="btn" style="font-size: 18px; padding: 15px 35px;">Start Splitting Now 🚀</a>
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <a href="/dashboard.html" class="btn" style="font-size: 16px; padding: 14px 32px;">Start Splitting Now 🚀</a>
+                <a href="#how-it-works" class="btn btn-secondary" style="font-size: 16px; padding: 14px 24px;">How It Works</a>
+            </div>
+        </div>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" style="margin: 45px 0;">
+            <h3 style="text-align: center; font-size: 24px; font-weight: 700; margin-bottom: 25px;">How SplitFlow Works</h3>
+            <div class="grid-3">
+                <div class="info-card">
+                    <div class="card-icon">1</div>
+                    <h4 style="font-size: 17px; margin-bottom: 8px;">Upload & Preview</h4>
+                    <p style="color: var(--text-muted); font-size: 14px;">Drop any CSV or XLSX file. SplitFlow validates schema and renders an instant 20-row preview without memory freezes.</p>
+                </div>
+                <div class="info-card">
+                    <div class="card-icon">2</div>
+                    <h4 style="font-size: 17px; margin-bottom: 8px;">Configure Rule</h4>
+                    <p style="color: var(--text-muted); font-size: 14px;">Partition by equal pieces, fixed row batch limits, or smart-grouping by unique column values.</p>
+                </div>
+                <div class="info-card">
+                    <div class="card-icon">3</div>
+                    <h4 style="font-size: 17px; margin-bottom: 8px;">Direct Download</h4>
+                    <p style="color: var(--text-muted); font-size: 14px;">Background workers slice the dataset with headers preserved on every output file. Download as CSV, XLSX, TSV, or JSON.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Plans & Retention Rules -->
+        <div class="card" style="margin: 40px 0; border-left: 5px solid var(--primary);">
+            <h3 style="font-size: 20px; margin-bottom: 15px;">Guest vs. Personal Member Tiers</h3>
+            <div class="grid-2">
+                <div>
+                    <h4 style="margin-bottom: 8px;">👤 Guest Mode</h4>
+                    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">
+                        • Instant access without sign-up.<br>
+                        • Up to <strong>200,000 rows</strong> and <strong>100 MB</strong>.<br>
+                        • Session storage: files deleted upon manual cleanup or retention expiration.
+                    </p>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary); margin-bottom: 8px;">✨ Personal Account (Google Sign-In)</h4>
+                    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">
+                        • Higher limits: up to <strong>500,000+ rows</strong>.<br>
+                        • Custom splitting templates saved permanently to your profile.<br>
+                        • Private job history and reserved download records.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+
+    <script>
+        function initTheme() {
+            const savedTheme = localStorage.getItem("splitflow_theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            const btn = document.getElementById("themeToggleBtn");
+            if (btn) btn.innerHTML = savedTheme === "dark" ? "☀️ Light" : "🌙 Dark";
+        }
+        function toggleNightMode() {
+            const current = document.documentElement.getAttribute("data-theme") || "light";
+            const next = current === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            localStorage.setItem("splitflow_theme", next);
+            const btn = document.getElementById("themeToggleBtn");
+            if (btn) btn.innerHTML = next === "dark" ? "☀️ Light" : "🌙 Dark";
+        }
+        initTheme();
+    </script>
 </body>
 </html>
