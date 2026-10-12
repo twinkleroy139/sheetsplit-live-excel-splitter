@@ -13,13 +13,21 @@ async function signInWithGoogle() {
     auth.signInWithPopup(provider)
         .then(async (result) => {
             const user = result.user;
-            await db.collection("users").doc(user.uid).set({
-                uid: user.uid,
-                email: user.email,
-                displayName: user.displayName,
-                photoURL: user.photoURL,
-                lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
+            
+            // Sync user document to Firestore safely
+            try {
+                if (db) {
+                    await db.collection("users").doc(user.uid).set({
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName,
+                        photoURL: user.photoURL,
+                        lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                }
+            } catch (dbErr) {
+                console.warn("Firestore user sync warning:", dbErr.message);
+            }
         })
         .catch((error) => {
             console.error("Login failed:", error.message);
