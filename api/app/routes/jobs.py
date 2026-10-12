@@ -1,12 +1,11 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, BackgroundTasks, status
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Any
 import uuid
-import json
-from api.app.services.queue import enqueue_job
-import shutil
 import os
+import shutil
+from api.app.splitter.writer import split_spreadsheet
 
 router = APIRouter(prefix="/jobs", tags=["Jobs"])
 
@@ -15,13 +14,30 @@ class SplitJobRequest(BaseModel):
     filePath: str
     fileName: str
     mode: str          # "pieces", "rows", or "column"
-    modeValue: Any     # Can be int (for pieces/rows) or str (for column name)
-    outputFormat: str  # "csv" or "xlsx"
+    modeValue: Any     # int or column string
+    outputFormat: str  # "csv", "xlsx", "tsv", "json"
 
 JOBS_DB = {}
 
+def process_split_background(job_id: str, file_path: str, mode: str, mode_value: Any, output_format: str):
+    output_dir = os.path.abspath(os.path.join("temp_outputs", job_id))
+    try:
+        split_spreadsheet(
+            file_path=file_path,
+            output_dir=output_dir,
+            mode=mode,
+            mode_value=mode_value,
+            output_format=output_format
+        )
+        if job_id in JOBS_DB:
+            JOBS_DB[job_id]["status"] = "completed"
+    except Exception as e:
+        if job_id in JOBS_DB:
+            JOBS_DB[job_id]["status"] = "failed"
+            JOBS_DB[job_id]["error"] = str(e)
+
 @router.post("")
-def create_split_job(payload: SplitJobRequest):
+def create_split_job(payload: SplitJobRequest, background_tasks: BackgroundTasks):
     job_id = str(uuid.uuid4())
     
     job_data = {
@@ -31,28 +47,29 @@ def create_split_job(payload: SplitJobRequest):
         "mode": payload.mode,
         "modeValue": payload.modeValue,
         "outputFormat": payload.outputFormat,
-        "status": "queued"
+        "status": "processing"
     }
     
     JOBS_DB[job_id] = job_data
     
-    try:
-        enqueue_job(job_data)
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to push job to queue: {str(e)}"
-        )
+    # Run splitting in background task
+    background_tasks.add_task(
+        process_split_background,
+        job_id=job_id,
+        file_path=payload.filePath,
+        mode=payload.mode,
+        mode_value=payload.modeValue,
+        output_format=payload.outputFormat
+    )
         
     return {
         "jobId": job_id,
-        "status": "queued",
-        "message": "Job successfully created and queued for processing."
+        "status": "processing",
+        "message": "Job successfully started in background."
     }
 
 @router.get("")
 def list_jobs():
-    """Returns recent job history."""
     return list(JOBS_DB.values())
 
 @router.get("/{job_id}")
@@ -63,13 +80,12 @@ def get_job_status(job_id: str):
 
 @router.get("/{job_id}/outputs")
 def get_job_outputs(job_id: str):
-    """Returns the list of generated files for a specific completed job."""
-    output_dir = os.path.join("temp_outputs", job_id)
+    output_dir = os.path.abspath(os.path.join("temp_outputs", job_id))
     if not os.path.exists(output_dir):
         return {"jobId": job_id, "files": []}
         
     files = []
-    for filename in os.listdir(output_dir):
+    for filename in sorted(os.listdir(output_dir)):
         file_path = os.path.join(output_dir, filename)
         if os.path.isfile(file_path):
             files.append({
@@ -82,19 +98,16 @@ def get_job_outputs(job_id: str):
 
 @router.get("/{job_id}/download/{filename}")
 def download_output_file(job_id: str, filename: str):
-    """Allows downloading a specific generated split file."""
-    file_path = os.path.join("temp_outputs", job_id, filename)
+    file_path = os.path.abspath(os.path.join("temp_outputs", job_id, filename))
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found.")
-    return FileResponse(file_path, filename=filename)
+    return FileResponse(file_path, filename=filename, media_type="application/octet-stream")
 
 @router.delete("/cleanup")
 def manual_cleanup():
-    """Manually clears all temporary upload and output folders."""
     deleted_counts = {"uploads_removed": 0, "outputs_removed": 0}
-    
-    upload_dir = "temp_uploads"
-    output_dir = "temp_outputs"
+    upload_dir = os.path.abspath("temp_uploads")
+    output_dir = os.path.abspath("temp_outputs")
     
     if os.path.exists(upload_dir):
         for filename in os.listdir(upload_dir):
