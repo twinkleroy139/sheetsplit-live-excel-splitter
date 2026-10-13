@@ -419,15 +419,33 @@ th {
   font-weight: 700;
   font-size: 15px;
   color: var(--text-main);
+  background: transparent;
   border: 1px solid transparent;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  outline: none;
+  font-family: inherit;
+}
+
+.vault-title:hover {
+  border-color: var(--border);
+  background: var(--surface-alt);
 }
 
 .vault-title:focus {
   background: var(--surface-alt);
   border-color: var(--primary);
-  outline: none;
+}
+
+[data-theme="dark"] .vault-title {
+  color: #f8fafc;
+  background: transparent;
+}
+
+[data-theme="dark"] .vault-title:hover,
+[data-theme="dark"] .vault-title:focus {
+  background: var(--surface-alt);
+  color: #ffffff;
 }
 
 .vault-meta {
@@ -492,4 +510,56 @@ th {
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+}
+
+
+
+/* --- Workspace Analytics KPI & Progress Meter --- */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.analytics-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.analytics-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.analytics-value {
+  font-size: 26px;
+  font-weight: 800;
+  margin-top: 6px;
+  color: var(--text-main);
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: var(--surface-alt);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 10px;
+  border: 1px solid var(--border);
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--primary);
+  width: 0%;
+  transition: width 0.4s ease;
+  border-radius: 999px;
 }

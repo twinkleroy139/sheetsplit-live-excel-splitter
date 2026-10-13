@@ -15,6 +15,7 @@ if (window.firebaseReady) {
             } else {
                 if (gate) gate.classList.add("hidden");
                 if (content) content.classList.remove("hidden");
+                updateAnalytics(); // initialize cards immediately
                 listenToUserJobs(user.uid);
             }
         });
@@ -29,12 +30,47 @@ function listenToUserJobs(uid) {
             snapshot.forEach(doc => {
                 allVaultJobs.push({ id: doc.id, ...doc.data() });
             });
+            updateAnalytics();
             renderVaultList();
         }, (err) => {
             console.error("Vault listener error:", err);
             const container = document.getElementById("vaultList");
             if (container) container.innerHTML = `<p style="color:red; text-align:center;">Failed to load vault: ${err.message}</p>`;
         });
+}
+
+function updateAnalytics() {
+    let totalRows = 0;
+    let totalFiles = 0;
+
+    allVaultJobs.forEach(job => {
+        const rows = job.totalRows || (job.mode === "rows" ? (parseInt(job.modeValue) * 3) : 25000);
+        totalRows += rows;
+
+        const pieces = job.mode === "pieces" ? (parseInt(job.modeValue) || 2) : 3;
+        totalFiles += pieces;
+    });
+
+    const hoursSaved = (totalRows / 10000 * 0.25).toFixed(1);
+    const monthlyQuota = 500000;
+    const usagePercent = Math.min(100, Math.round((totalRows / monthlyQuota) * 100));
+
+    const kpiRows = document.getElementById("kpiTotalRows");
+    const kpiFiles = document.getElementById("kpiTotalFiles");
+    const kpiTime = document.getElementById("kpiTimeSaved");
+    const quotaText = document.getElementById("quotaUsageText");
+    const quotaPercent = document.getElementById("quotaPercentText");
+    const progressBar = document.getElementById("quotaProgressBar");
+
+    if (kpiRows) kpiRows.innerText = totalRows.toLocaleString();
+    if (kpiFiles) kpiFiles.innerText = totalFiles.toLocaleString();
+    if (kpiTime) kpiTime.innerText = `${hoursSaved} hrs`;
+    if (quotaText) quotaText.innerText = `${totalRows >= 1000 ? (totalRows / 1000).toFixed(1) + 'k' : totalRows} / 500k`;
+    if (quotaPercent) quotaPercent.innerText = `${usagePercent}%`;
+    if (progressBar) {
+        progressBar.style.width = `${usagePercent}%`;
+        progressBar.style.background = usagePercent > 85 ? '#ef4444' : 'var(--primary)';
+    }
 }
 
 function renderVaultList() {
@@ -159,7 +195,6 @@ async function deleteVaultJob(docId, jobId) {
     }
 }
 
-// --- SHARE MODAL HANDLERS ---
 function openShareModal(jobId) {
     activeShareJobId = jobId;
     document.getElementById("shareResultBox").classList.add("hidden");
