@@ -124,13 +124,23 @@
 
         <!-- STEP 4: RESULTS -->
         <div class="card hidden" id="step-4-card">
-            <h2>Split Job Status & Downloads</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <h2>Split Job Status & Downloads</h2>
+                <a id="headerZipBtn" href="#" class="btn-zip hidden" download>
+                    📦 Download All as ZIP
+                </a>
+            </div>
+            
             <div id="jobStatusBox" style="padding: 20px; background: var(--surface-alt); border-radius: 8px; margin-top: 15px;">
                 <p id="jobStatusText" style="font-weight: 600; font-size: 16px;">Processing job in background worker...</p>
                 <div id="jobResultDetails" style="margin-top: 15px;"></div>
             </div>
-            <div class="actions" style="margin-top: 20px;">
-                <button class="btn" onclick="location.reload()">Split Another File</button>
+
+            <div class="actions" style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn btn-secondary" onclick="location.reload()">Split Another File</button>
+                <a id="footerZipBtn" href="#" class="btn-zip hidden" download>
+                    📦 Download All as ZIP
+                </a>
             </div>
         </div>
 
@@ -179,7 +189,7 @@
         }
         initTheme();
 
-        // --- ORIGINAL PROVEN SPLITTER LOGIC (UNTOUCHED) ---
+        // --- ORIGINAL PROVEN SPLITTER LOGIC ---
         const dropzone = document.getElementById("dropzone");
         const fileInput = document.getElementById("fileInput");
 
@@ -338,6 +348,10 @@
                 outputFormat: document.getElementById("outputFormat").value
             };
 
+            // Hide buttons while new job is processing
+            document.getElementById("headerZipBtn").classList.add("hidden");
+            document.getElementById("footerZipBtn").classList.add("hidden");
+
             try {
                 const res = await createJob(payload);
                 document.getElementById("jobStatusText").innerText = `Job Status: PROCESSING...`;
@@ -352,33 +366,34 @@
                         const data = await statusRes.json();
                         
                         if (data.files && data.files.length > 0) {
-    clearInterval(pollInterval);
-    document.getElementById("jobStatusText").innerText = `Job Status: COMPLETED ✅`;
-    
-    const zipDownloadUrl = `${JOB_API_URL}/jobs/${res.jobId}/download-zip`;
-    
-    let filesHtml = `
-        <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                <h4 style="margin: 0;">Generated Split Files (${data.files.length} parts):</h4>
-                <a href="${zipDownloadUrl}" class="btn-zip" download>
-                    📦 Download All as ZIP (${data.files.length} Files)
-                </a>
-            </div>
-            <ul style="list-style: none; padding: 0; margin-top: 10px;">
-    `;
-    
-    data.files.forEach(file => {
-        const downloadLink = `${JOB_API_URL}/jobs/${res.jobId}/download/${file.name}`;
-        filesHtml += `<li style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);">
-            <span>📄 <strong>${file.name}</strong> (${(file.sizeBytes / 1024).toFixed(1)} KB)</span>
-            <a href="${downloadLink}" class="btn" style="padding: 5px 12px; font-size: 13px;" download>Download ⬇</a>
-        </li>`;
-    });
-    filesHtml += '</ul></div>';
-    
-    document.getElementById("jobResultDetails").innerHTML = filesHtml;
-}
+                            clearInterval(pollInterval);
+                            document.getElementById("jobStatusText").innerText = `Job Status: COMPLETED ✅`;
+                            
+                            const zipUrl = `${JOB_API_URL}/jobs/${res.jobId}/download-zip`;
+                            
+                            // Activate both prominent ZIP buttons
+                            const headerBtn = document.getElementById("headerZipBtn");
+                            headerBtn.href = zipUrl;
+                            headerBtn.innerText = `📦 Download All as ZIP (${data.files.length} Files)`;
+                            headerBtn.classList.remove("hidden");
+
+                            const footerBtn = document.getElementById("footerZipBtn");
+                            footerBtn.href = zipUrl;
+                            footerBtn.innerText = `📦 Download All as ZIP (${data.files.length} Files)`;
+                            footerBtn.classList.remove("hidden");
+
+                            let filesHtml = '<div style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;"><h4>Generated Split Files (Ready for Download):</h4><ul style="list-style: none; padding: 0; margin-top: 10px;">';
+                            data.files.forEach(file => {
+                                const downloadLink = `${JOB_API_URL}/jobs/${res.jobId}/download/${file.name}`;
+                                filesHtml += `<li style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);">
+                                    <span>📄 <strong>${file.name}</strong> (${(file.sizeBytes / 1024).toFixed(1)} KB)</span>
+                                    <a href="${downloadLink}" class="btn" style="padding: 5px 12px; font-size: 13px;" download>Download ⬇</a>
+                                </li>`;
+                            });
+                            filesHtml += '</ul></div>';
+                            
+                            document.getElementById("jobResultDetails").innerHTML = filesHtml;
+                        }
                     } catch (pollErr) {
                         console.error("Polling error", pollErr);
                     }
