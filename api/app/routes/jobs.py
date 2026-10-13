@@ -5,6 +5,7 @@ from typing import Any
 import uuid
 import os
 import shutil
+import zipfile
 from api.app.splitter.writer import split_spreadsheet
 
 router = APIRouter(prefix="/jobs", tags=["Jobs"])
@@ -86,6 +87,9 @@ def get_job_outputs(job_id: str):
         
     files = []
     for filename in sorted(os.listdir(output_dir)):
+        # Skip existing zip archives from the file list
+        if filename.endswith(".zip"):
+            continue
         file_path = os.path.join(output_dir, filename)
         if os.path.isfile(file_path):
             files.append({
@@ -102,6 +106,30 @@ def download_output_file(job_id: str, filename: str):
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found.")
     return FileResponse(file_path, filename=filename, media_type="application/octet-stream")
+
+@router.get("/{job_id}/download-zip")
+def download_all_as_zip(job_id: str):
+    output_dir = os.path.abspath(os.path.join("temp_outputs", job_id))
+    if not os.path.exists(output_dir):
+        raise HTTPException(status_code=404, detail="Job output directory not found.")
+    
+    zip_filename = f"splitflow_{job_id[:8]}_all.zip"
+    zip_path = os.path.join(output_dir, zip_filename)
+    
+    # Create or refresh the zip archive
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zip_file:
+        for filename in sorted(os.listdir(output_dir)):
+            if filename == zip_filename:
+                continue
+            file_path = os.path.join(output_dir, filename)
+            if os.path.isfile(file_path):
+                zip_file.write(file_path, arcname=filename)
+                
+    return FileResponse(
+        zip_path,
+        filename=zip_filename,
+        media_type="application/zip"
+    )
 
 @router.delete("/cleanup")
 def manual_cleanup():

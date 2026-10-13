@@ -352,21 +352,33 @@
                         const data = await statusRes.json();
                         
                         if (data.files && data.files.length > 0) {
-                            clearInterval(pollInterval);
-                            document.getElementById("jobStatusText").innerText = `Job Status: COMPLETED ✅`;
-                            
-                            let filesHtml = '<div style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;"><h4>Generated Split Files (Ready for Download):</h4><ul style="list-style: none; padding: 0; margin-top: 10px;">';
-                            data.files.forEach(file => {
-                                const downloadLink = `${JOB_API_URL}/jobs/${res.jobId}/download/${file.name}`;
-                                filesHtml += `<li style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);">
-                                    <span>📄 <strong>${file.name}</strong> (${(file.sizeBytes / 1024).toFixed(1)} KB)</span>
-                                    <a href="${downloadLink}" class="btn" style="padding: 5px 12px; font-size: 13px;" download>Download ⬇</a>
-                                </li>`;
-                            });
-                            filesHtml += '</ul></div>';
-                            
-                            document.getElementById("jobResultDetails").innerHTML = filesHtml;
-                        }
+    clearInterval(pollInterval);
+    document.getElementById("jobStatusText").innerText = `Job Status: COMPLETED ✅`;
+    
+    const zipDownloadUrl = `${JOB_API_URL}/jobs/${res.jobId}/download-zip`;
+    
+    let filesHtml = `
+        <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                <h4 style="margin: 0;">Generated Split Files (${data.files.length} parts):</h4>
+                <a href="${zipDownloadUrl}" class="btn-zip" download>
+                    📦 Download All as ZIP (${data.files.length} Files)
+                </a>
+            </div>
+            <ul style="list-style: none; padding: 0; margin-top: 10px;">
+    `;
+    
+    data.files.forEach(file => {
+        const downloadLink = `${JOB_API_URL}/jobs/${res.jobId}/download/${file.name}`;
+        filesHtml += `<li style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);">
+            <span>📄 <strong>${file.name}</strong> (${(file.sizeBytes / 1024).toFixed(1)} KB)</span>
+            <a href="${downloadLink}" class="btn" style="padding: 5px 12px; font-size: 13px;" download>Download ⬇</a>
+        </li>`;
+    });
+    filesHtml += '</ul></div>';
+    
+    document.getElementById("jobResultDetails").innerHTML = filesHtml;
+}
                     } catch (pollErr) {
                         console.error("Polling error", pollErr);
                     }

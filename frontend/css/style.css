@@ -326,3 +326,26 @@ th {
 .btn-danger:hover {
   background: #dc2626;
 }
+
+
+
+/* --- Download ZIP Button --- */
+.btn-zip {
+  background: #059669;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-zip:hover {
+  background: #047857;
+}
