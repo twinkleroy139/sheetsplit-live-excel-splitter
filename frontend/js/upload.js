@@ -7,7 +7,7 @@ let uploadedFileMeta = null;
 async function uploadFile(file) {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("plan", "guest");
+    formData.append("plan", currentUser ? "free" : "guest");
 
     const response = await fetch(`${API_URL}/upload/init`, {
         method: "POST",
@@ -36,5 +36,28 @@ async function createJob(jobPayload) {
         throw new Error(err.detail || "Failed to create split job");
     }
 
-    return await response.json();
+    const jobResult = await response.json();
+
+    // Auto-save record into the user's private Firestore collection
+    if (typeof auth !== "undefined" && auth && auth.currentUser && typeof db !== "undefined" && db) {
+        try {
+            const uid = auth.currentUser.uid;
+            await db.collection("users").doc(uid).collection("jobs").doc(jobResult.jobId).set({
+                jobId: jobResult.jobId,
+                customName: jobPayload.fileName,
+                originalFileName: jobPayload.fileName,
+                mode: jobPayload.mode,
+                modeValue: jobPayload.modeValue,
+                outputFormat: jobPayload.outputFormat,
+                isFavorite: false,
+                notes: "",
+                status: "completed",
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch (syncErr) {
+            console.warn("Could not sync job to Firestore vault:", syncErr.message);
+        }
+    }
+
+    return jobResult;
 }

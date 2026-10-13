@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SplitFlow - My Workspace & Job Vault</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Top Nav -->
+        <header>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <h1>SplitFlow ⚡</h1>
+                <span class="badge">My Workspace</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleNightMode()">🌙 Dark</button>
+                <a href="/dashboard.html" class="btn">New Split 🚀</a>
+                <a href="/" class="btn btn-secondary">Home</a>
+                <div id="authContainer"></div>
+            </div>
+        </header>
+
+        <!-- Unauthenticated Warning Gate -->
+        <div id="unauthGate" class="card hidden" style="text-align: center; padding: 50px 20px;">
+            <h2>🔒 Sign In Required</h2>
+            <p style="color: var(--text-muted); margin: 15px 0;">Please sign in with Google to access your private job vault.</p>
+            <button class="btn" onclick="signInWithGoogle()">Sign in with Google</button>
+        </div>
+
+        <!-- Main Workspace Interface -->
+        <div id="workspaceContent" class="hidden">
+            <!-- Vault Controls Bar -->
+            <div class="card" style="padding: 20px;">
+                <div class="vault-header">
+                    <div>
+                        <h2>Interactive Job Vault</h2>
+                        <p style="color: var(--text-muted); font-size: 13px;">Manage, favorite, annotate, and re-run your previous split workflows.</p>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" id="vaultSearchInput" class="form-control" placeholder="Search by name, file, or mode..." oninput="filterVaultJobs()">
+                        <button class="btn btn-secondary" onclick="toggleFavoritesOnlyFilter()" id="favFilterBtn">⭐ Starred</button>
+                    </div>
+                </div>
+
+                <!-- Vault List Container -->
+                <div id="vaultList" style="margin-top: 15px;">
+                    <p style="color: var(--text-muted); text-align: center; padding: 20px;">Loading your vault records...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/workspace.js"></script>
+</body>
+</html>

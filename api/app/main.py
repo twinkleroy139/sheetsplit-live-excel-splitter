@@ -53,6 +53,11 @@ if FRONTEND_DIR.exists():
     def serve_dashboard():
         return FileResponse(FRONTEND_DIR / "dashboard.html")
 
+    @app.get("/workspace", response_class=FileResponse)
+    @app.get("/workspace.html", response_class=FileResponse)
+    def serve_workspace():
+        return FileResponse(FRONTEND_DIR / "workspace.html")
+
     @app.get("/admin", response_class=FileResponse)
     @app.get("/admin.html", response_class=FileResponse)
     def serve_admin():

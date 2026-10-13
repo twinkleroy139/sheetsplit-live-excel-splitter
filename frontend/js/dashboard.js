@@ -1,3 +1,28 @@
+// --- AUTO-APPLY RE-RUN PRESET FROM WORKSPACE ---
+document.addEventListener("DOMContentLoaded", () => {
+    const rerunRaw = sessionStorage.getItem("splitflow_rerun_config");
+    if (rerunRaw) {
+        try {
+            const rerun = JSON.parse(rerunRaw);
+            const modeSelect = document.getElementById("splitMode");
+            const formatSelect = document.getElementById("outputFormat");
+
+            if (modeSelect) modeSelect.value = rerun.mode;
+            toggleModeInput();
+
+            const modeVal = document.getElementById("modeValue");
+            if (modeVal) modeVal.value = rerun.modeValue;
+
+            if (formatSelect) formatSelect.value = rerun.outputFormat;
+
+            sessionStorage.removeItem("splitflow_rerun_config");
+            console.log("Re-run config preloaded:", rerun);
+        } catch (e) {
+            console.warn("Failed to apply re-run preset", e);
+        }
+    }
+});
+
 // --- DROPZONE & FILE INPUT HANDLERS ---
 const dropzone = document.getElementById("dropzone");
 const fileInput = document.getElementById("fileInput");
@@ -5,7 +30,6 @@ const fileInput = document.getElementById("fileInput");
 if (dropzone && fileInput) {
     dropzone.addEventListener("click", () => fileInput.click());
 
-    // Enable full drag-and-drop
     dropzone.addEventListener("dragover", (e) => {
         e.preventDefault();
         dropzone.style.borderColor = "var(--primary)";
@@ -164,7 +188,6 @@ async function startSplitJob() {
         outputFormat: document.getElementById("outputFormat").value
     };
 
-    // Reset ZIP download buttons
     const headerBtn = document.getElementById("headerZipBtn");
     const footerBtn = document.getElementById("footerZipBtn");
     if (headerBtn) headerBtn.classList.add("hidden");
@@ -189,7 +212,6 @@ async function startSplitJob() {
                     
                     const zipUrl = `${JOB_API_URL}/jobs/${res.jobId}/download-zip`;
                     
-                    // Activate both prominent ZIP buttons
                     if (headerBtn) {
                         headerBtn.href = zipUrl;
                         headerBtn.innerText = `📦 Download All as ZIP (${data.files.length} Files)`;

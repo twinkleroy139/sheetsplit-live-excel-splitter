@@ -14,7 +14,6 @@ async function signInWithGoogle() {
         .then(async (result) => {
             const user = result.user;
             
-            // Sync user document to Firestore safely
             try {
                 if (db) {
                     await db.collection("users").doc(user.uid).set({
@@ -41,7 +40,6 @@ function signOutUser() {
     }
 }
 
-// Hook into Firebase state once ready
 if (window.firebaseReady) {
     window.firebaseReady.then(() => {
         if (!auth) return;
@@ -55,10 +53,11 @@ if (window.firebaseReady) {
 
                 if (authContainer) {
                     authContainer.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            ${isAdmin ? '<a href="/admin.html" class="btn btn-secondary" style="background:#e0e7ff; color:#3730a3; border-color:#c7d2fe;">Admin Panel ⚙️</a>' : ''}
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <a href="/workspace.html" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;">My Workspace 📊</a>
+                            ${isAdmin ? '<a href="/admin.html" class="btn btn-secondary" style="background:#e0e7ff; color:#3730a3; border-color:#c7d2fe; padding: 6px 12px; font-size: 13px;">Admin ⚙️</a>' : ''}
                             <img src="${user.photoURL || 'https://via.placeholder.com/32'}" style="width:32px; height:32px; border-radius:50%; border:2px solid var(--primary);" title="${user.displayName}">
-                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;" onclick="signOutUser()">Sign Out</button>
+                            <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 13px;" onclick="signOutUser()">Sign Out</button>
                         </div>
                     `;
                 }

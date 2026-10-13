@@ -53,7 +53,6 @@ def create_split_job(payload: SplitJobRequest, background_tasks: BackgroundTasks
     
     JOBS_DB[job_id] = job_data
     
-    # Run splitting in background task
     background_tasks.add_task(
         process_split_background,
         job_id=job_id,
@@ -87,7 +86,6 @@ def get_job_outputs(job_id: str):
         
     files = []
     for filename in sorted(os.listdir(output_dir)):
-        # Skip existing zip archives from the file list
         if filename.endswith(".zip"):
             continue
         file_path = os.path.join(output_dir, filename)
@@ -116,7 +114,6 @@ def download_all_as_zip(job_id: str):
     zip_filename = f"splitflow_{job_id[:8]}_all.zip"
     zip_path = os.path.join(output_dir, zip_filename)
     
-    # Create or refresh the zip archive
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zip_file:
         for filename in sorted(os.listdir(output_dir)):
             if filename == zip_filename:
@@ -130,6 +127,19 @@ def download_all_as_zip(job_id: str):
         filename=zip_filename,
         media_type="application/zip"
     )
+
+@router.delete("/{job_id}")
+def delete_single_job(job_id: str):
+    """Deletes output files and cached metadata for a specific job."""
+    output_dir = os.path.abspath(os.path.join("temp_outputs", job_id))
+    deleted = False
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+        deleted = True
+    if job_id in JOBS_DB:
+        del JOBS_DB[job_id]
+        deleted = True
+    return {"status": "success", "jobId": job_id, "deleted": deleted}
 
 @router.delete("/cleanup")
 def manual_cleanup():
