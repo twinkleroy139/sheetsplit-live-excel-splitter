@@ -1,27 +1,46 @@
 // --- AUTO-APPLY RE-RUN PRESET FROM WORKSPACE ---
-document.addEventListener("DOMContentLoaded", () => {
+let pendingRerunConfig = null;
+
+(function checkRerunPreset() {
     const rerunRaw = sessionStorage.getItem("splitflow_rerun_config");
     if (rerunRaw) {
         try {
-            const rerun = JSON.parse(rerunRaw);
-            const modeSelect = document.getElementById("splitMode");
-            const formatSelect = document.getElementById("outputFormat");
-
-            if (modeSelect) modeSelect.value = rerun.mode;
-            toggleModeInput();
-
-            const modeVal = document.getElementById("modeValue");
-            if (modeVal) modeVal.value = rerun.modeValue;
-
-            if (formatSelect) formatSelect.value = rerun.outputFormat;
-
+            pendingRerunConfig = JSON.parse(rerunRaw);
             sessionStorage.removeItem("splitflow_rerun_config");
-            console.log("Re-run config preloaded:", rerun);
+            
+            // Show alert pill on dropzone
+            const dropzoneP = document.querySelector("#dropzone p:last-child");
+            if (dropzoneP) {
+                dropzoneP.innerHTML = `<span style="color: var(--primary); font-weight: bold;">⚡ Re-run active:</span> Preset will apply after file selection (${pendingRerunConfig.mode})`;
+            }
         } catch (e) {
-            console.warn("Failed to apply re-run preset", e);
+            console.warn("Failed to parse rerun config:", e);
         }
     }
-});
+})();
+
+function applyPendingRerunIfAny() {
+    if (!pendingRerunConfig) return;
+    
+    const modeSelect = document.getElementById("splitMode");
+    const formatSelect = document.getElementById("outputFormat");
+
+    if (modeSelect) {
+        modeSelect.value = pendingRerunConfig.mode;
+        toggleModeInput();
+    }
+
+    const modeVal = document.getElementById("modeValue");
+    if (modeVal) {
+        modeVal.value = pendingRerunConfig.modeValue;
+    }
+
+    if (formatSelect) {
+        formatSelect.value = pendingRerunConfig.outputFormat;
+    }
+
+    pendingRerunConfig = null;
+}
 
 // --- DROPZONE & FILE INPUT HANDLERS ---
 const dropzone = document.getElementById("dropzone");
@@ -81,7 +100,13 @@ async function handleFileSelected(file) {
             tbody.appendChild(tr);
         });
 
-        goToStep(2);
+        // If re-run was clicked, immediately populate settings and proceed
+        if (pendingRerunConfig) {
+            goToStep(3);
+            applyPendingRerunIfAny();
+        } else {
+            goToStep(2);
+        }
     } catch (err) {
         alert("Error: " + err.message);
         location.reload();

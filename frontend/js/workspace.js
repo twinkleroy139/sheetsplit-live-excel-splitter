@@ -1,5 +1,6 @@
 let allVaultJobs = [];
 let showFavoritesOnly = false;
+let activeShareJobId = null;
 
 if (window.firebaseReady) {
     window.firebaseReady.then(() => {
@@ -85,6 +86,9 @@ function renderVaultList() {
                 <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="promptJobNote('${job.id}', '${escapeAttr(job.notes || '')}')">
                     📝 Note
                 </button>
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openShareModal('${job.jobId}')">
+                    🔗 Share
+                </button>
                 <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="rerunJobPreset('${escapeAttr(job.mode)}', '${escapeAttr(job.modeValue)}', '${escapeAttr(job.outputFormat)}')">
                     ⚡ Re-run
                 </button>
@@ -146,15 +150,66 @@ function rerunJobPreset(mode, modeValue, outputFormat) {
 async function deleteVaultJob(docId, jobId) {
     if (!confirm("Are you sure you want to delete this job and its files?")) return;
     try {
-        // Delete output directory on backend
         await fetch(`/jobs/${jobId}`, { method: "DELETE" });
-        // Delete record from user's Firestore vault
         if (auth.currentUser) {
             await db.collection("users").doc(auth.currentUser.uid).collection("jobs").doc(docId).delete();
         }
     } catch (err) {
         alert("Failed to delete job: " + err.message);
     }
+}
+
+// --- SHARE MODAL HANDLERS ---
+function openShareModal(jobId) {
+    activeShareJobId = jobId;
+    document.getElementById("shareResultBox").classList.add("hidden");
+    document.getElementById("sharePin").value = "";
+    document.getElementById("generateShareBtn").classList.remove("hidden");
+    document.getElementById("shareModal").classList.remove("hidden");
+}
+
+function closeShareModal() {
+    document.getElementById("shareModal").classList.add("hidden");
+    activeShareJobId = null;
+}
+
+async function submitCreateShare() {
+    if (!activeShareJobId) return;
+    const expiryHours = parseInt(document.getElementById("shareExpiry").value);
+    const pin = document.getElementById("sharePin").value.trim();
+
+    try {
+        const res = await fetch("/jobs/share/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                jobId: activeShareJobId,
+                expiryHours: expiryHours,
+                pin: pin || null
+            })
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || "Could not generate share link.");
+        }
+
+        const data = await res.json();
+        const fullUrl = `${window.location.origin}${data.shareUrl}`;
+        
+        document.getElementById("shareUrlDisplay").innerText = fullUrl;
+        document.getElementById("shareResultBox").classList.remove("hidden");
+        document.getElementById("generateShareBtn").classList.add("hidden");
+    } catch (err) {
+        alert("Share generation failed: " + err.message);
+    }
+}
+
+function copyShareUrl() {
+    const text = document.getElementById("shareUrlDisplay").innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        alert("Share link copied to clipboard!");
+    });
 }
 
 function filterVaultJobs() {

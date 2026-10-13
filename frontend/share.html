@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SplitFlow - Shared Spreadsheets</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container" style="max-width: 720px;">
+        <header>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <h1>SplitFlow ⚡</h1>
+                <span class="badge">Secure Share</span>
+            </div>
+            <div>
+                <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleNightMode()">🌙 Dark</button>
+            </div>
+        </header>
+
+        <!-- Loading State -->
+        <div id="shareLoading" class="card" style="text-align: center; padding: 40px 20px;">
+            <p style="color: var(--text-muted);">Verifying share link permissions...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="shareError" class="card hidden" style="text-align: center; padding: 40px 20px;">
+            <h2 style="color: #dc2626; margin-bottom: 10px;">Link Unavailable</h2>
+            <p id="shareErrorMessage" style="color: var(--text-muted); margin-bottom: 20px;"></p>
+            <a href="/" class="btn">Go to SplitFlow Home</a>
+        </div>
+
+        <!-- PIN Challenge Form -->
+        <div id="pinChallengeCard" class="card hidden" style="text-align: center; padding: 40px 20px;">
+            <h2>🔒 Protected Files</h2>
+            <p style="color: var(--text-muted); margin: 10px 0 20px 0;">This share link is protected by a PIN or password.</p>
+            <div style="max-width: 280px; margin: 0 auto;">
+                <input type="password" id="recipientPin" class="form-control" placeholder="Enter PIN / Password" style="text-align: center; font-size: 18px; letter-spacing: 2px;">
+                <button class="btn" style="width: 100%; margin-top: 15px;" onclick="submitPin()">Unlock Files 🔓</button>
+            </div>
+        </div>
+
+        <!-- Download List State -->
+        <div id="shareContent" class="card hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                <div>
+                    <h2 id="shareFileName">Split Files</h2>
+                    <p id="shareExpiryNote" style="color: var(--text-muted); font-size: 13px;"></p>
+                </div>
+                <a id="shareZipBtn" href="#" class="btn-zip" download>📦 Download All as ZIP</a>
+            </div>
+
+            <ul id="shareFilesList" style="list-style: none; padding: 0;"></ul>
+        </div>
+    </div>
+
+    <script src="/js/ui.js"></script>
+    <script src="/js/share.js"></script>
+</body>
+</html>

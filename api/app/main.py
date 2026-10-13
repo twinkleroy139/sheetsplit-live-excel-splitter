@@ -58,6 +58,11 @@ if FRONTEND_DIR.exists():
     def serve_workspace():
         return FileResponse(FRONTEND_DIR / "workspace.html")
 
+    @app.get("/share/{token}", response_class=FileResponse)
+    @app.get("/share.html", response_class=FileResponse)
+    def serve_share(token: str = None):
+        return FileResponse(FRONTEND_DIR / "share.html")
+
     @app.get("/admin", response_class=FileResponse)
     @app.get("/admin.html", response_class=FileResponse)
     def serve_admin():

@@ -36,7 +36,7 @@
                 <div class="vault-header">
                     <div>
                         <h2>Interactive Job Vault</h2>
-                        <p style="color: var(--text-muted); font-size: 13px;">Manage, favorite, annotate, and re-run your previous split workflows.</p>
+                        <p style="color: var(--text-muted); font-size: 13px;">Manage, favorite, annotate, share, and re-run your previous split workflows.</p>
                     </div>
                     <div class="search-box">
                         <input type="text" id="vaultSearchInput" class="form-control" placeholder="Search by name, file, or mode..." oninput="filterVaultJobs()">
@@ -48,6 +48,42 @@
                 <div id="vaultList" style="margin-top: 15px;">
                     <p style="color: var(--text-muted); text-align: center; padding: 20px;">Loading your vault records...</p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHARE CREATION MODAL -->
+    <div id="shareModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 8px;">🔗 Create Secure Share Link</h3>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Generate an expiring link for clients or teammates.</p>
+
+            <div class="form-group">
+                <label>Link Expiration</label>
+                <select id="shareExpiry" class="form-control">
+                    <option value="1">Expires in 1 Hour</option>
+                    <option value="24" selected>Expires in 24 Hours</option>
+                    <option value="72">Expires in 3 Days</option>
+                    <option value="168">Expires in 7 Days</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Access PIN / Password (Optional)</label>
+                <input type="text" id="sharePin" class="form-control" placeholder="e.g. 1234 (Leave blank for public)">
+            </div>
+
+            <div id="shareResultBox" class="hidden">
+                <label style="font-weight: 600; font-size: 13px;">Shareable Link:</label>
+                <div class="share-url-box">
+                    <span id="shareUrlDisplay"></span>
+                    <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="copyShareUrl()">Copy</button>
+                </div>
+            </div>
+
+            <div class="actions" style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeShareModal()">Close</button>
+                <button id="generateShareBtn" class="btn" onclick="submitCreateShare()">Generate Link 🔗</button>
             </div>
         </div>
     </div>

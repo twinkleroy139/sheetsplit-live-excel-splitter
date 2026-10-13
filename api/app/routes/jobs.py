@@ -1,11 +1,13 @@
-from fastapi import APIRouter, HTTPException, BackgroundTasks, status
+from fastapi import APIRouter, HTTPException, BackgroundTasks, status, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from typing import Any
+from typing import Any, Optional
 import uuid
 import os
 import shutil
 import zipfile
+import time
+import hashlib
 from api.app.splitter.writer import split_spreadsheet
 
 router = APIRouter(prefix="/jobs", tags=["Jobs"])
@@ -18,7 +20,14 @@ class SplitJobRequest(BaseModel):
     modeValue: Any     # int or column string
     outputFormat: str  # "csv", "xlsx", "tsv", "json"
 
+class CreateShareRequest(BaseModel):
+    jobId: str
+    expiryHours: int = 24  # 1, 24, 72, 168
+    pin: Optional[str] = None
+
 JOBS_DB = {}
+# In-memory share links registry: { token: { jobId, expiresAt, pinHash, fileName } }
+SHARE_LINKS_DB = {}
 
 def process_split_background(job_id: str, file_path: str, mode: str, mode_value: Any, output_format: str):
     output_dir = os.path.abspath(os.path.join("temp_outputs", job_id))
@@ -130,7 +139,6 @@ def download_all_as_zip(job_id: str):
 
 @router.delete("/{job_id}")
 def delete_single_job(job_id: str):
-    """Deletes output files and cached metadata for a specific job."""
     output_dir = os.path.abspath(os.path.join("temp_outputs", job_id))
     deleted = False
     if os.path.exists(output_dir):
@@ -140,6 +148,87 @@ def delete_single_job(job_id: str):
         del JOBS_DB[job_id]
         deleted = True
     return {"status": "success", "jobId": job_id, "deleted": deleted}
+
+# --- EXPIRING & PIN-PROTECTED SHARE LINKS ---
+
+@router.post("/share/create")
+def create_share_link(payload: CreateShareRequest):
+    job_id = payload.jobId
+    output_dir = os.path.abspath(os.path.join("temp_outputs", job_id))
+    if not os.path.exists(output_dir):
+        raise HTTPException(status_code=404, detail="Job files not found or expired on server.")
+
+    token = uuid.uuid4().hex[:10]
+    expires_at = time.time() + (payload.expiryHours * 3600)
+    pin_hash = hashlib.sha256(payload.pin.strip().encode()).hexdigest() if payload.pin and payload.pin.strip() else None
+
+    file_name = JOBS_DB.get(job_id, {}).get("fileName", "SplitFlow Export")
+
+    SHARE_LINKS_DB[token] = {
+        "jobId": job_id,
+        "expiresAt": expires_at,
+        "pinHash": pin_hash,
+        "isProtected": pin_hash is not None,
+        "fileName": file_name
+    }
+
+    return {
+        "status": "success",
+        "token": token,
+        "shareUrl": f"/share/{token}",
+        "expiresAt": expires_at,
+        "isProtected": pin_hash is not None
+    }
+
+@router.get("/share/{token}/info")
+def get_share_info(token: str, pin: Optional[str] = Query(None)):
+    if token not in SHARE_LINKS_DB:
+        raise HTTPException(status_code=404, detail="Share link not found or has been revoked.")
+
+    record = SHARE_LINKS_DB[token]
+    if time.time() > record["expiresAt"]:
+        del SHARE_LINKS_DB[token]
+        raise HTTPException(status_code=410, detail="This share link has expired.")
+
+    # Challenge PIN if protected
+    if record["isProtected"]:
+        if not pin:
+            return {
+                "isProtected": True,
+                "authenticated": False,
+                "fileName": record["fileName"],
+                "expiresAt": record["expiresAt"]
+            }
+        provided_hash = hashlib.sha256(pin.strip().encode()).hexdigest()
+        if provided_hash != record["pinHash"]:
+            raise HTTPException(status_code=401, detail="Incorrect PIN.")
+
+    job_id = record["jobId"]
+    output_dir = os.path.abspath(os.path.join("temp_outputs", job_id))
+    if not os.path.exists(output_dir):
+        raise HTTPException(status_code=404, detail="Files have expired on disk.")
+
+    files = []
+    for filename in sorted(os.listdir(output_dir)):
+        if filename.endswith(".zip"):
+            continue
+        file_path = os.path.join(output_dir, filename)
+        if os.path.isfile(file_path):
+            files.append({
+                "name": filename,
+                "sizeBytes": os.path.getsize(file_path),
+                "downloadUrl": f"/jobs/{job_id}/download/{filename}"
+            })
+
+    return {
+        "isProtected": record["isProtected"],
+        "authenticated": True,
+        "fileName": record["fileName"],
+        "expiresAt": record["expiresAt"],
+        "jobId": job_id,
+        "files": files,
+        "zipUrl": f"/jobs/{job_id}/download-zip"
+    }
 
 @router.delete("/cleanup")
 def manual_cleanup():
