@@ -3,80 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SplitFlow - Enterprise-Grade Excel & CSV Splitter</title>
+    <title>SheetSplit - Enterprise High-Performance Excel & CSV Splitting SaaS</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container">
+        <!-- Live System Announcement Banner -->
+        <div id="announcementBanner" class="card hidden" style="padding: 12px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--primary);">
+            <span id="announcementText" style="font-weight: 600; font-size: 14px;"></span>
+            <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 11px;" onclick="dismissBanner()">✕</button>
+        </div>
+
         <!-- Navigation Header -->
         <header>
             <div style="display: flex; align-items: center; gap: 8px;">
-                <h1>SplitFlow ⚡</h1>
-                <span class="badge">v1.0 Pro</span>
+                <h1>SheetSplit ⚡</h1>
+                <span class="badge">v2.0 Cloud</span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleNightMode()">🌙 Dark</button>
                 <div id="authContainer"></div>
-                <a href="/dashboard.html" class="btn">Open Dashboard 🚀</a>
+                <a href="/dashboard.html" class="btn">Open Splitter 🚀</a>
             </div>
         </header>
 
         <!-- Hero Section -->
-        <div class="card" style="text-align: center; padding: 60px 20px;">
-            <h2 style="font-size: 38px; font-weight: 800; line-height: 1.2; margin-bottom: 15px;">Split Huge Excel & CSV Files Instantly</h2>
-            <p style="color: var(--text-muted); font-size: 17px; max-width: 650px; margin: 0 auto 30px auto;">
-                Have files with 200,000+ rows that freeze Excel or crash your browser memory? Split them into segments in seconds with live preview and automatic header repetition.
+        <div class="card" style="text-align: center; padding: 65px 25px;">
+            <div class="badge" style="margin-bottom: 15px; font-size: 12px; padding: 6px 12px;">Engineered for 500,000+ Row Datasets</div>
+            <h2 style="font-size: 40px; font-weight: 800; line-height: 1.25; margin-bottom: 18px;">
+                Split Massive Spreadsheets Without Memory Freezes
+            </h2>
+            <p style="color: var(--text-muted); font-size: 18px; max-width: 680px; margin: 0 auto 35px auto;">
+                Tired of Excel crashing when partitioning huge CSVs or workbooks? Slice massive files by equal pieces, fixed row batch limits, or unique column values in seconds.
             </p>
             <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                <a href="/dashboard.html" class="btn" style="font-size: 16px; padding: 14px 32px;">Start Splitting Now 🚀</a>
-                <a href="#how-it-works" class="btn btn-secondary" style="font-size: 16px; padding: 14px 24px;">How It Works</a>
+                <a href="/dashboard.html" class="btn" style="font-size: 16px; padding: 14px 34px;">Start Splitting for Free 🚀</a>
+                <a href="#features" class="btn btn-secondary" style="font-size: 16px; padding: 14px 24px;">Explore Features</a>
             </div>
         </div>
 
-        <!-- How It Works Section -->
-        <section id="how-it-works" style="margin: 45px 0;">
-            <h3 style="text-align: center; font-size: 24px; font-weight: 700; margin-bottom: 25px;">How SplitFlow Works</h3>
+        <!-- System Core Capabilities Grid -->
+        <section id="features" style="margin: 50px 0;">
+            <div style="text-align: center; margin-bottom: 35px;">
+                <h3 style="font-size: 26px; font-weight: 800; margin-bottom: 8px;">Full-Stack Splitting Architecture</h3>
+                <p style="color: var(--text-muted); font-size: 15px;">Everything you need to process, archive, and collaborate on enterprise tabular data.</p>
+            </div>
+
             <div class="grid-3">
                 <div class="info-card">
-                    <div class="card-icon">1</div>
-                    <h4 style="font-size: 17px; margin-bottom: 8px;">Upload & Preview</h4>
-                    <p style="color: var(--text-muted); font-size: 14px;">Drop any CSV or XLSX file. SplitFlow validates schema and renders an instant 20-row preview without memory freezes.</p>
+                    <div class="card-icon">⚡</div>
+                    <h4 style="font-size: 17px; margin-bottom: 8px;">Multi-Mode Splitting Engine</h4>
+                    <p style="color: var(--text-muted); font-size: 14px; line-height: 1.5;">
+                        Partition datasets into <strong>N Equal Pieces</strong>, chunk by <strong>Fixed Row Batches</strong> (e.g. 50k per file), or execute <strong>Smart Column Splits</strong> to create grouped files automatically.
+                    </p>
                 </div>
+
                 <div class="info-card">
-                    <div class="card-icon">2</div>
-                    <h4 style="font-size: 17px; margin-bottom: 8px;">Configure Rule</h4>
-                    <p style="color: var(--text-muted); font-size: 14px;">Partition by equal pieces, fixed row batch limits, or smart-grouping by unique column values.</p>
+                    <div class="card-icon">📦</div>
+                    <h4 style="font-size: 17px; margin-bottom: 8px;">One-Click ZIP Archives</h4>
+                    <p style="color: var(--text-muted); font-size: 14px; line-height: 1.5;">
+                        No need to download 50 separate files individually. Background workers compress your chunks into a single unified archive with verified header repetition.
+                    </p>
                 </div>
+
                 <div class="info-card">
-                    <div class="card-icon">3</div>
-                    <h4 style="font-size: 17px; margin-bottom: 8px;">Direct Download</h4>
-                    <p style="color: var(--text-muted); font-size: 14px;">Background workers slice the dataset with headers preserved on every output file. Download as CSV, XLSX, TSV, or JSON.</p>
+                    <div class="card-icon">📊</div>
+                    <h4 style="font-size: 17px; margin-bottom: 8px;">Interactive Job Vault</h4>
+                    <p style="color: var(--text-muted); font-size: 14px; line-height: 1.5;">
+                        Log in with Google to access your persistent Member Portal. Star frequent routines, attach contextual notes, rename runs, and trigger <strong>instant Re-runs</strong> with saved presets.
+                    </p>
+                </div>
+
+                <div class="info-card">
+                    <div class="card-icon">🔗</div>
+                    <h4 style="font-size: 17px; margin-bottom: 8px;">Expiring & PIN-Protected Shares</h4>
+                    <p style="color: var(--text-muted); font-size: 14px; line-height: 1.5;">
+                        Share outputs securely with external clients or teammates. Configure link expiration (1 hour to 7 days) and protect access with a 4-digit security PIN.
+                    </p>
+                </div>
+
+                <div class="info-card">
+                    <div class="card-icon">📈</div>
+                    <h4 style="font-size: 17px; margin-bottom: 8px;">Summary Usage Analytics</h4>
+                    <p style="color: var(--text-muted); font-size: 14px; line-height: 1.5;">
+                        Monitor your productivity with real-time counters: total rows sliced, parts generated, estimated manual hours saved, and your monthly quota usage meter.
+                    </p>
+                </div>
+
+                <div class="info-card">
+                    <div class="card-icon">🛡️</div>
+                    <h4 style="font-size: 17px; margin-bottom: 8px;">Zero Storage Footprint</h4>
+                    <p style="color: var(--text-muted); font-size: 14px; line-height: 1.5;">
+                        Your privacy comes first. Uploaded spreadsheets and temporary output files are purged upon session completion or on-demand via the manual cleanup trigger.
+                    </p>
                 </div>
             </div>
         </section>
 
-        <!-- Plans & Retention Rules -->
-        <div class="card" style="margin: 40px 0; border-left: 5px solid var(--primary);">
-            <h3 style="font-size: 20px; margin-bottom: 15px;">Guest vs. Personal Member Tiers</h3>
-            <div class="grid-2">
+        <!-- 3-Step Wizard Workflow Preview -->
+        <div class="card" style="padding: 40px; margin-bottom: 45px;">
+            <h3 style="text-align: center; font-size: 24px; font-weight: 800; margin-bottom: 30px;">How It Works</h3>
+            <div class="grid-3" style="text-align: center;">
                 <div>
-                    <h4 style="margin-bottom: 8px;">👤 Guest Mode</h4>
-                    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">
-                        • Instant access without sign-up.<br>
-                        • Up to <strong>200,000 rows</strong> and <strong>100 MB</strong>.<br>
-                        • Session storage: files deleted upon manual cleanup or retention expiration.
-                    </p>
+                    <div class="step-number" style="margin-bottom: 12px; width: 40px; height: 40px; font-size: 16px;">1</div>
+                    <h4 style="margin-bottom: 8px;">Upload & Instant Schema Scan</h4>
+                    <p style="color: var(--text-muted); font-size: 14px;">Drop CSV, XLSX, or XLS files. The scanner reads row statistics and produces an immediate 20-row preview.</p>
                 </div>
                 <div>
-                    <h4 style="color: var(--primary); margin-bottom: 8px;">✨ Personal Account (Google Sign-In)</h4>
-                    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6;">
-                        • Higher limits: up to <strong>500,000+ rows</strong>.<br>
-                        • Custom splitting templates saved permanently to your profile.<br>
-                        • Private job history and reserved download records.
-                    </p>
+                    <div class="step-number" style="margin-bottom: 12px; width: 40px; height: 40px; font-size: 16px;">2</div>
+                    <h4 style="margin-bottom: 8px;">Configure Split Parameters</h4>
+                    <p style="color: var(--text-muted); font-size: 14px;">Select your partition rule, choose your preferred target format (CSV, Excel, TSV, or JSON), or apply a saved template.</p>
+                </div>
+                <div>
+                    <div class="step-number" style="margin-bottom: 12px; width: 40px; height: 40px; font-size: 16px;">3</div>
+                    <h4 style="margin-bottom: 8px;">Background Processing & ZIP</h4>
+                    <p style="color: var(--text-muted); font-size: 14px;">Background workers slice the dataset in parallel, keeping headers intact across all files, ready for instant ZIP download.</p>
                 </div>
             </div>
         </div>
+
+        <!-- Plan Comparison Matrix -->
+        <div class="card" style="padding: 40px; border-top: 4px solid var(--primary); margin-bottom: 40px;">
+            <h3 style="text-align: center; font-size: 24px; font-weight: 800; margin-bottom: 25px;">Transparent Access Tiers</h3>
+            <div class="grid-2">
+                <div style="background: var(--surface-alt); padding: 25px; border-radius: var(--radius); border: 1px solid var(--border);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h4 style="font-size: 18px;">👤 Guest Tier</h4>
+                        <span class="badge">No Sign-In</span>
+                    </div>
+                    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px;">Ideal for quick, one-off file splits without an account.</p>
+                    <ul style="font-size: 14px; color: var(--text-muted); line-height: 1.8; list-style: none; padding: 0;">
+                        <li>✔ Up to <strong>200,000 rows</strong> per file</li>
+                        <li>✔ Full multi-mode splitting (Pieces, Rows, Column)</li>
+                        <li>✔ Single and ZIP archive downloads</li>
+                        <li>✔ Immediate temporary storage purge</li>
+                    </ul>
+                    <a href="/dashboard.html" class="btn btn-secondary" style="width: 100%; margin-top: 20px;">Use as Guest</a>
+                </div>
+
+                <div style="background: var(--surface-alt); padding: 25px; border-radius: var(--radius); border: 2px solid var(--primary);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h4 style="font-size: 18px; color: var(--primary);">✨ Personal Member Tier</h4>
+                        <span class="badge" style="background: var(--primary); color: white;">Google Auth</span>
+                    </div>
+                    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px;">Engineered for data engineers, operations, and recurrent batch tasks.</p>
+                    <ul style="font-size: 14px; color: var(--text-muted); line-height: 1.8; list-style: none; padding: 0;">
+                        <li>✔ Increased quota: up to <strong>500,000 rows</strong> monthly</li>
+                        <li>✔ <strong>Interactive Job Vault</strong>: Rename, star, and note records</li>
+                        <li>✔ <strong>Expiring Share Links</strong> with PIN encryption</li>
+                        <li>✔ <strong>1-Click Re-run</strong> presets with auto-configured rules</li>
+                        <li>✔ Personal KPI metrics and time-saved analytics</li>
+                    </ul>
+                    <button class="btn" style="width: 100%; margin-top: 20px;" onclick="signInWithGoogle()">Sign In with Google</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer style="text-align: center; color: var(--text-muted); font-size: 13px; margin: 40px 0 20px 0;">
+            <p>SheetSplit • High-Performance Cloud Spreadsheet Partitioning</p>
+        </footer>
     </div>
 
     <!-- Firebase SDKs -->
@@ -86,23 +172,28 @@
 
     <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
-
+    <script src="js/ui.js"></script>
     <script>
-        function initTheme() {
-            const savedTheme = localStorage.getItem("splitflow_theme") || "light";
-            document.documentElement.setAttribute("data-theme", savedTheme);
-            const btn = document.getElementById("themeToggleBtn");
-            if (btn) btn.innerHTML = savedTheme === "dark" ? "☀️ Light" : "🌙 Dark";
+        // Check for live global admin announcements
+        async function checkLiveAnnouncement() {
+            try {
+                const res = await fetch("/admin/announcement");
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.active && data.message) {
+                    const banner = document.getElementById("announcementBanner");
+                    const txt = document.getElementById("announcementText");
+                    txt.innerText = `📢 ${data.message}`;
+                    banner.classList.remove("hidden");
+                }
+            } catch (e) {
+                console.warn("Announcement check skipped", e);
+            }
         }
-        function toggleNightMode() {
-            const current = document.documentElement.getAttribute("data-theme") || "light";
-            const next = current === "dark" ? "light" : "dark";
-            document.documentElement.setAttribute("data-theme", next);
-            localStorage.setItem("splitflow_theme", next);
-            const btn = document.getElementById("themeToggleBtn");
-            if (btn) btn.innerHTML = next === "dark" ? "☀️ Light" : "🌙 Dark";
+        function dismissBanner() {
+            document.getElementById("announcementBanner").classList.add("hidden");
         }
-        initTheme();
+        checkLiveAnnouncement();
     </script>
 </body>
 </html>
