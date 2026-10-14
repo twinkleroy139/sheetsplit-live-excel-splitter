@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from api.app.routes import upload, jobs, admin
 
-app = FastAPI(title="SplitFlow API", version="1.0.0")
+app = FastAPI(title="SheetSplit API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
