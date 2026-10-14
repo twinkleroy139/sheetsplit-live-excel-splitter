@@ -120,7 +120,7 @@ def download_all_as_zip(job_id: str):
     if not os.path.exists(output_dir):
         raise HTTPException(status_code=404, detail="Job output directory not found.")
     
-    zip_filename = f"splitflow_{job_id[:8]}_all.zip"
+    zip_filename = f"sheetsplit_{job_id[:8]}_all.zip"
     zip_path = os.path.join(output_dir, zip_filename)
     
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zip_file:
@@ -162,7 +162,7 @@ def create_share_link(payload: CreateShareRequest):
     expires_at = time.time() + (payload.expiryHours * 3600)
     pin_hash = hashlib.sha256(payload.pin.strip().encode()).hexdigest() if payload.pin and payload.pin.strip() else None
 
-    file_name = JOBS_DB.get(job_id, {}).get("fileName", "SplitFlow Export")
+    file_name = JOBS_DB.get(job_id, {}).get("fileName", "SheetSplit Export")
 
     SHARE_LINKS_DB[token] = {
         "jobId": job_id,

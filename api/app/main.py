@@ -22,7 +22,7 @@ app.include_router(admin.router)
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "service": "splitflow-api"}
+    return {"status": "healthy", "service": "sheetsplit-api"}
 
 @app.get("/api/config")
 def get_firebase_config():
